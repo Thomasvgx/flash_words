@@ -1,3 +1,5 @@
+// const { debug } = require("console");
+
 document.addEventListener('DOMContentLoaded', function () {
     let words = [];
     let currentIndex = 0;
@@ -6,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const wordInput = document.getElementById('word-input');
     const startButton = document.getElementById('start-button');
+    const fileInput = document.getElementById('file-input');
     const wordDisplay = document.getElementById('word-display');
     const timerDisplay = document.getElementById('timer');
     const summaryDisplay = document.getElementById('summary');
@@ -57,16 +60,48 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to initialize the app
     function init() {
         startButton.addEventListener('click', function () {
-            words = wordInput.value.split(',');
-            currentIndex = 0;
-            elapsedTimeForEachWord = [];
-            wordDisplay.textContent = words[currentIndex];
-            startTimer();
-            startButton.style.display = 'none';
-            wordInput.style.display = 'none';
-
-            sendWordsToServer(words);
+            console.log(fileInput.files);
+            // Choose either entered words or words from a file
+            if (wordInput.value.trim() !== '') {
+                words = wordInput.value.split(',');
+                currentIndex = 0;
+                elapsedTimeForEachWord = [];
+                wordDisplay.textContent = words[currentIndex];
+                startTimer();
+            } else if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    words = event.target.result.split(',');
+                    currentIndex = 0;
+                    elapsedTimeForEachWord = [];
+                    wordDisplay.textContent = words[currentIndex];
+                    startTimer();
+                    startButton.style.display = 'none';
+                    wordInput.style.display = 'none';
+                    fileInput.style.display = 'none';
+                };
+                reader.readAsText(file);
+                // Upload the file to the server
+                uploadFile(file);
+            } else {
+                alert('Please enter words or choose a file.');
+            }
         });
+    }
+
+    // Function to upload the file to the server
+    function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('http://localhost:3000/upload-file', {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => response.text())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
     }
 
     // Function to send the list of words to the server
