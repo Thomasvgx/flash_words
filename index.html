@@ -8,12 +8,20 @@
 </head>
 <body>
     <div id="app">
-        <textarea id="word-input" placeholder="Enter a list of words separated by commas"></textarea>
-        <input type="file" id="file-input" accept=".txt" />
-        <button id="start-button">Start</button>
+        <div class="row" id="input-section">
+            <textarea id="word-input" placeholder="Enter a list of words separated by commas"></textarea>
+            <input type="file" id="file-input" accept=".txt" />
+            <button id="start-button">Start</button>
+        </div>
+        
         <div id="word-display"></div>
         <p id="timer"></p>
-        <div id="summary"></div>
+
+        <div class="row" id="summary-section" style="display: none;">
+            <div id="summary"></div>
+            <button id="refresh-button">Refresh</button>
+        </div>
+        
     </div>
     <script src="script.js"></script>
 </body>
