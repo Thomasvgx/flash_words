@@ -4,11 +4,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let startTime;
     let elapsedTimeForEachWord = [];
 
+    const inputSection = document.getElementById('input-section');
     const wordInput = document.getElementById('word-input');
+    const fileInput = document.getElementById('file-input');
     const startButton = document.getElementById('start-button');
     const wordDisplay = document.getElementById('word-display');
     const timerDisplay = document.getElementById('timer');
+    const summarySection = document.getElementById('summary-section');
     const summaryDisplay = document.getElementById('summary');
+    const refreshButton = document.getElementById('refresh-button');
     let spacebarPressed = false; // Flag to track spacebar press
 
     // Function to start the timer
@@ -46,41 +50,68 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to display the summary
     function showSummary() {
+        wordDisplay.style.display = 'none';
+        summarySection.style.display = 'block';
         let summaryHTML = '<p><h1>Summary:</h1></p>';
         for (let i = 0; i < words.length; i++) {
             summaryHTML += `<p>${words[i]}: ${elapsedTimeForEachWord[i]} seconds</p>`;
         }
+        refreshButton.style.display = 'block';
+        // summaryHTML += '<button id="refresh-button">Refresh</button>';
         summaryDisplay.innerHTML = summaryHTML;
-        wordDisplay.style.display = 'none';
     }
 
     // Function to initialize the app
     function init() {
         startButton.addEventListener('click', function () {
-            words = wordInput.value.split(',');
-            currentIndex = 0;
-            elapsedTimeForEachWord = [];
-            wordDisplay.textContent = words[currentIndex];
-            startTimer();
-            startButton.style.display = 'none';
-            wordInput.style.display = 'none';
-
-            sendWordsToServer(words);
+            // Choose either entered words or words from a file
+            if (wordInput.value.trim() !== '') {
+                words = wordInput.value.split(',');
+                currentIndex = 0;
+                elapsedTimeForEachWord = [];
+                wordDisplay.textContent = words[currentIndex];
+                startTimer();
+                inputSection.style.display = 'none';
+            } else if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    words = event.target.result.split(',');
+                    currentIndex = 0;
+                    elapsedTimeForEachWord = [];
+                    wordDisplay.textContent = words[currentIndex];
+                    startTimer();
+                };
+                reader.readAsText(file);
+                inputSection.style.display = 'none';
+            } else {
+                alert('Please enter words or choose a file.');
+            }
         });
     }
 
-    // Function to send the list of words to the server
-    function sendWordsToServer(words) {
-        fetch('http://localhost:3000/upload', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ words }),
-        })
-        .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
+    refreshButton.addEventListener('click', function () {
+        resetApplication();
+    });
+
+    function resetApplication() {
+        // Clear input fields
+        document.getElementById('word-input').value = '';
+        document.getElementById('file-input').value = '';
+
+        // Reset state variables
+        words = [];
+        currentIndex = 0;
+        startTime = null;
+        elapsedTimeForEachWord = [];
+
+        // Clear displays
+        document.getElementById('word-display').textContent = '';
+        document.getElementById('timer').textContent = '';
+        document.getElementById('summary').textContent = '';
+
+        // Reload the page
+        location.reload();
     }
 
     init();
