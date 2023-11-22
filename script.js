@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentIndex = 0;
     let startTime;
     let elapsedTimeForEachWord = [];
+    const wordsPerPage = 20;
+    let currentPage = 1;
 
     const inputSection = document.getElementById('input-section');
     const wordInput = document.getElementById('word-input');
@@ -30,6 +32,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
     // Function to show the next word or display the summary if all words are shown
     function showNextWord() {
         spacebarPressed = false; // Reset the flag
@@ -51,14 +60,27 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to display the summary
     function showSummary() {
         wordDisplay.style.display = 'none';
-        summarySection.style.display = 'block';
-        let summaryHTML = '<p><h1>Summary:</h1></p>';
-        for (let i = 0; i < words.length; i++) {
-            summaryHTML += `<p>${words[i]}: ${elapsedTimeForEachWord[i]} seconds</p>`;
+        let sum = 0;
+        for (let i = 0; i < elapsedTimeForEachWord.length; i++) {
+            sum += parseFloat(elapsedTimeForEachWord[i]);
         }
+        
+        summarySection.style.display = 'block';
+        // let summaryHTML = '<p><h1>Summary:</h1></p>';
+
+        // Calculate the start and end index for the current page
+        const startIndex = (currentPage - 1) * wordsPerPage;
+        const endIndex = startIndex + wordsPerPage;
+
+        // Display words for the current page
+        const pageWords = words.slice(startIndex, endIndex);
+        let summaryHTML = '<p><h1>Summary:</h1></p><ul>' +
+        pageWords.map((word, index) => `<li>${word} - ${elapsedTimeForEachWord[startIndex + index]} seconds</li>`).join('') + '</ul>';
+
+        summaryHTML += `<p><b>Total time</b>: ${sum.toFixed(1)}s<p>`;
         refreshButton.style.display = 'block';
-        // summaryHTML += '<button id="refresh-button">Refresh</button>';
         summaryDisplay.innerHTML = summaryHTML;
+        showPaginationControls();
     }
 
     // Function to initialize the app
@@ -67,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Choose either entered words or words from a file
             if (wordInput.value.trim() !== '') {
                 words = wordInput.value.split(',');
+                shuffleArray(words);
                 currentIndex = 0;
                 elapsedTimeForEachWord = [];
                 wordDisplay.textContent = words[currentIndex];
@@ -77,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const reader = new FileReader();
                 reader.onload = function (event) {
                     words = event.target.result.split(',');
+                    shuffleArray(words);
                     currentIndex = 0;
                     elapsedTimeForEachWord = [];
                     wordDisplay.textContent = words[currentIndex];
@@ -113,6 +137,25 @@ document.addEventListener('DOMContentLoaded', function () {
         // Reload the page
         location.reload();
     }
+
+    function showPaginationControls() {
+        const paginationElement = document.getElementById('pagination');
+        const totalPages = Math.ceil(words.length / wordsPerPage);
+    
+        // Create pagination controls with simple styling
+        const paginationHTML = '<div class="pagination">' +
+            Array.from({ length: totalPages }, (_, index) =>
+                `<button class="page-button ${currentPage === index + 1 ? 'active' : ''}" onclick="changePage(${index + 1})">${index + 1}</button>`
+            ).join('') +
+            '</div>';
+    
+        paginationElement.innerHTML = paginationHTML;
+    }
+    
+    window.changePage = function(newPage) {
+        currentPage = newPage;
+        showSummary();
+    };
 
     init();
 });
