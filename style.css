@@ -1,5 +1,5 @@
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Calibri', sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -58,9 +58,38 @@ body {
     border: none;
     border-radius: 4px;
     margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block; /* Ensure it's a block-level element for centering */
     transition: background-color 0.3s ease;
 }
 
 #refresh-button:hover {
     background-color: #218838; /* Darker shade on hover */
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.page-button {
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    margin: 0 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.page-button:hover {
+    background-color: #ddd;
+}
+
+.page-button.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
 }
