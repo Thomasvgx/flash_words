@@ -15,14 +15,20 @@
             <button id="start-button">Start</button>
         </div>
         
-        <div id="word-display"></div>
-        <p id="timer"></p>
+        <div class="row" id="word-display-section" style="display: none;">
+            <div id="word-display"></div>
+            <div id="elapsed-time-display"></div>
+            <div class="keyboard-icon">
+                <p>Press <kbd>v</kbd> key to stop the timer.</p>
+                <p>Press <kbd>b</kbd> key to stop the timer and go to the next word.</p>
+            </div>
+            <p id="timer"></p>
+        </div>
 
         <div class="row" id="summary-section" style="display: none;">
             <div id="summary"></div>
-            <button id="refresh-button">Refresh</button>
-            <div id="summary"></div>
             <div id="pagination"></div>
+            <button id="refresh-button">Refresh</button>
 
         </div>
         

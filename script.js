@@ -12,24 +12,58 @@ document.addEventListener('DOMContentLoaded', function () {
     const startButton = document.getElementById('start-button');
     const wordDisplay = document.getElementById('word-display');
     const timerDisplay = document.getElementById('timer');
+    const elapsedTimeDisplay = document.getElementById('elapsed-time-display');
     const summarySection = document.getElementById('summary-section');
     const summaryDisplay = document.getElementById('summary');
     const refreshButton = document.getElementById('refresh-button');
+    const wordDisplaySection = document.getElementById('word-display-section');
     let spacebarPressed = false; // Flag to track spacebar press
 
     // Function to start the timer
-    function startTimer() {
+    /*function startTimer() {
         startTime = new Date();
         document.addEventListener('keydown', handleKeyPress);
-    }
+    }*/
 
-    // Function to handle key press events
+    document.body.addEventListener('click', function () {
+        handleKeyPress({ code: 'Space', preventDefault: function() {} });
+    });
+
+    document.addEventListener('keydown', handleKeyPress);
+
     function handleKeyPress(event) {
-        if (event.code === 'Space' && !spacebarPressed) {
+        if ((event.code === 'Space' || event.type === 'click') && !spacebarPressed) {
             event.preventDefault(); // Prevent the default behavior (e.g., page refresh)
             spacebarPressed = true;
+            startTimer();
+        } else if (event.code === 'KeyV') {
+            event.preventDefault();
+            elapsedTimeDisplay.style.display = "block";
+            stopTimer();
+        } else if (event.code === 'KeyB') {
+            event.preventDefault();
+            elapsedTimeDisplay.style.display = "none";
             showNextWord();
         }
+    }
+
+    function startTimer() {
+        startTime = Date.now();
+    }
+
+    function stopTimer() {
+        if (startTime !== undefined) {
+            const endTime = Date.now();
+            const elapsedSeconds = (endTime - startTime) / 1000;
+            elapsedTimeForEachWord[currentIndex] = elapsedSeconds;
+            displayElapsedTime(elapsedSeconds);
+            spacebarPressed = false;
+        }
+    }
+
+    function displayElapsedTime(elapsedSeconds) {
+        const elapsedTimeDisplay = document.getElementById('elapsed-time-display');
+        elapsedTimeDisplay.textContent = `Elapsed Time: ${elapsedSeconds.toFixed(2)} seconds`;
     }
 
     function shuffleArray(array) {
@@ -45,8 +79,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (currentIndex < words.length) {
             const elapsedTime = (new Date() - startTime) / 1000; // Calculate elapsed time in seconds
             elapsedTimeForEachWord.push(elapsedTime.toFixed(2));
-
             currentIndex++;
+
             if (currentIndex < words.length) {
                 wordDisplay.textContent = words[currentIndex];
                 startTime = new Date(); // Reset the start time for the next word
@@ -59,14 +93,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to display the summary
     function showSummary() {
-        wordDisplay.style.display = 'none';
+        wordDisplaySection.style.display = 'none';
         let sum = 0;
         for (let i = 0; i < elapsedTimeForEachWord.length; i++) {
             sum += parseFloat(elapsedTimeForEachWord[i]);
         }
-        
+
         summarySection.style.display = 'block';
-        // let summaryHTML = '<p><h1>Summary:</h1></p>';
 
         // Calculate the start and end index for the current page
         const startIndex = (currentPage - 1) * wordsPerPage;
@@ -75,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Display words for the current page
         const pageWords = words.slice(startIndex, endIndex);
         let summaryHTML = '<p><h1>Summary:</h1></p><ul>' +
-        pageWords.map((word, index) => `<li>${word} - ${elapsedTimeForEachWord[startIndex + index]} seconds</li>`).join('') + '</ul>';
+        pageWords.map((word, index) => `<li><b>${word}</b> - ${elapsedTimeForEachWord[startIndex + index].toFixed(2)}s</li>`).join('') + '</ul>';
 
         summaryHTML += `<p><b>Total time</b>: ${sum.toFixed(1)}s<p>`;
         refreshButton.style.display = 'block';
@@ -88,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
         startButton.addEventListener('click', function () {
             // Choose either entered words or words from a file
             if (wordInput.value.trim() !== '') {
+                wordDisplaySection.style.display = 'block';
                 words = wordInput.value.split(',');
                 shuffleArray(words);
                 currentIndex = 0;
@@ -96,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 startTimer();
                 inputSection.style.display = 'none';
             } else if (fileInput.files.length > 0) {
+                wordDisplaySection.style.display = 'block';
                 const file = fileInput.files[0];
                 const reader = new FileReader();
                 reader.onload = function (event) {
