@@ -18,12 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const refreshButton = document.getElementById('refresh-button');
     const wordDisplaySection = document.getElementById('word-display-section');
     let spacebarPressed = false; // Flag to track spacebar press
-
-    // Function to start the timer
-    /*function startTimer() {
-        startTime = new Date();
-        document.addEventListener('keydown', handleKeyPress);
-    }*/
+    let vKeyPressed = false;
 
     document.body.addEventListener('click', function () {
         handleKeyPress({ code: 'Space', preventDefault: function() {} });
@@ -35,15 +30,30 @@ document.addEventListener('DOMContentLoaded', function () {
         if ((event.code === 'Space' || event.type === 'click') && !spacebarPressed) {
             event.preventDefault(); // Prevent the default behavior (e.g., page refresh)
             spacebarPressed = true;
-            startTimer();
+            // startTimer();
         } else if (event.code === 'KeyV') {
             event.preventDefault();
             elapsedTimeDisplay.style.display = "block";
-            stopTimer();
+            if (vKeyPressed == false){
+                vKeyPressed = true;
+                stopTimer();
+            }
+            else{
+                elapsedTimeDisplay.style.display = "none";
+                // Timer already stopped
+                showNextWord();
+            }
         } else if (event.code === 'KeyB') {
             event.preventDefault();
             elapsedTimeDisplay.style.display = "none";
-            showNextWord();
+            if (vKeyPressed == true){
+                // Timer already stopped
+                showNextWord();
+            }
+            else{
+                stopTimer();
+                showNextWord();
+            }
         }
     }
 
@@ -58,12 +68,13 @@ document.addEventListener('DOMContentLoaded', function () {
             elapsedTimeForEachWord[currentIndex] = elapsedSeconds;
             displayElapsedTime(elapsedSeconds);
             spacebarPressed = false;
+            vKeyPressed = true;
         }
     }
 
     function displayElapsedTime(elapsedSeconds) {
         const elapsedTimeDisplay = document.getElementById('elapsed-time-display');
-        elapsedTimeDisplay.textContent = `Elapsed Time: ${elapsedSeconds.toFixed(2)} seconds`;
+        elapsedTimeDisplay.textContent = `Elapsed Time: ${elapsedSeconds.toFixed(2)}s`;
     }
 
     function shuffleArray(array) {
@@ -75,19 +86,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to show the next word or display the summary if all words are shown
     function showNextWord() {
-        spacebarPressed = false; // Reset the flag
-        if (currentIndex < words.length) {
-            const elapsedTime = (new Date() - startTime) / 1000; // Calculate elapsed time in seconds
-            elapsedTimeForEachWord.push(elapsedTime.toFixed(2));
-            currentIndex++;
+        vKeyPressed = false;
+        currentIndex++;
 
-            if (currentIndex < words.length) {
-                wordDisplay.textContent = words[currentIndex];
-                startTime = new Date(); // Reset the start time for the next word
-            } else {
-                document.removeEventListener('keydown', handleKeyPress); // Remove the event listener
-                showSummary();
-            }
+        if (currentIndex < words.length) {
+            wordDisplay.textContent = words[currentIndex];
+            startTime = new Date(); // Reset the start time for the next word
+        } else {
+            document.removeEventListener('keydown', handleKeyPress); // Remove the event listener
+            showSummary();
         }
     }
 
