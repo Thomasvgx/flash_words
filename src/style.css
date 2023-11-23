@@ -94,18 +94,6 @@ body {
     border-color: #007bff;
 }
 
-/*kbd {
-    border: 2px solid black;
-    box-shadow: 2px 2px black;
-    font-size: .85em;
-    line-height: .85em;
-    display: inline-block;
-    font-weight: 600;
-    letter-spacing: .05em;
-    padding: 3px 5px;
-    white-space: nowrap;
-  }*/
-
   kbd {
 	margin: 0px 0.1em;
 	padding: 0.1em 0.6em;
@@ -124,3 +112,35 @@ body {
 	-webkit-border-radius: 3px;
 	text-shadow: 0 1px 0 #fff;
     }
+
+#summary li::before {
+    content: '\1F4D6'; /* Unicode for smiling face emoji */
+    margin-right: 8px;
+    font-size: 1em;
+    vertical-align: middle;
+}
+
+#summary li {
+    list-style-type: none;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+#export-button{
+    font-size: 1em;
+    padding: 8px 16px;
+    cursor: pointer;
+    background-color: #1dbfca; /* Bootstrap success color */
+    color: #fff; /* White text for better contrast */
+    border: none;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block; /* Ensure it's a block-level element for centering */
+    transition: background-color 0.3s ease;
+}
+
+#export-button:hover {
+    background-color: #1472b1; /* Darker shade on hover */
+}

@@ -25,34 +25,39 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.addEventListener('keydown', handleKeyPress);
+    
+    const exportButton = document.getElementById('export-button');
+    exportButton.addEventListener('click', exportToCSV);
 
     function handleKeyPress(event) {
-        if ((event.code === 'Space' || event.type === 'click') && !spacebarPressed) {
-            event.preventDefault(); // Prevent the default behavior (e.g., page refresh)
-            spacebarPressed = true;
-            // startTimer();
-        } else if (event.code === 'KeyV') {
-            event.preventDefault();
-            elapsedTimeDisplay.style.display = "block";
-            if (vKeyPressed == false){
-                vKeyPressed = true;
-                stopTimer();
-            }
-            else{
+        if (wordDisplaySection.style.display == 'block'){
+            if ((event.code === 'Space' || event.type === 'click') && !spacebarPressed) {
+                event.preventDefault(); // Prevent the default behavior (e.g., page refresh)
+                spacebarPressed = true;
+                // startTimer();
+            } else if (event.code === 'KeyV') {
+                event.preventDefault();
+                elapsedTimeDisplay.style.display = "block";
+                if (vKeyPressed == false){
+                    vKeyPressed = true;
+                    stopTimer();
+                }
+                else{
+                    elapsedTimeDisplay.style.display = "none";
+                    // Timer already stopped
+                    showNextWord();
+                }
+            } else if (event.code === 'KeyB') {
+                event.preventDefault();
                 elapsedTimeDisplay.style.display = "none";
-                // Timer already stopped
-                showNextWord();
-            }
-        } else if (event.code === 'KeyB') {
-            event.preventDefault();
-            elapsedTimeDisplay.style.display = "none";
-            if (vKeyPressed == true){
-                // Timer already stopped
-                showNextWord();
-            }
-            else{
-                stopTimer();
-                showNextWord();
+                if (vKeyPressed == true){
+                    // Timer already stopped
+                    showNextWord();
+                }
+                else{
+                    stopTimer();
+                    showNextWord();
+                }
             }
         }
     }
@@ -148,8 +153,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     wordDisplay.textContent = words[currentIndex];
                     startTimer();
                 };
-                reader.readAsText(file);
-                inputSection.style.display = 'none';
+            reader.readAsText(file);
+            inputSection.style.display = 'none';
             } else {
                 alert('Please enter words or choose a file.');
             }
@@ -198,6 +203,30 @@ document.addEventListener('DOMContentLoaded', function () {
         currentPage = newPage;
         showSummary();
     };
+
+    function exportToCSV() {
+        // Assuming summaryArray is your array of summary data
+        /*const summaryArray = [
+            { word: 'Word 1', time: 5.23 },
+            { word: 'Word 2', time: 3.45 },
+            // Add more objects as needed
+        ];*/
+
+        // Convert the array to CSV format
+        const combinedArray = words.map((word, index) => ({word, time: elapsedTimeForEachWord[index] }));
+
+        // Convert the combined array to CSV format
+        const csvContent = combinedArray.map(entry => `${entry.word},${entry.time}`).join('\n');
+
+        // Create a Blob and create a link to trigger the download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', 'summary.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 
     init();
 });
